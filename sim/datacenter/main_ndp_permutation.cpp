@@ -72,11 +72,13 @@ void print_path(std::ofstream &paths, const Route* rt){
 }
 
 int main(int argc, char **argv) {
-    Packet::set_packet_size(9000);
-    eventlist.setEndtime(timeFromSec(0.201));
-    Clock c(timeFromSec(5 / 100.), eventlist);
-    int no_of_conns = DEFAULT_NODES, cwnd = 15, no_of_nodes = DEFAULT_NODES;
-    mem_b queuesize = memFromPkt(DEFAULT_QUEUE_SIZE);
+    int pkt_size = 9000;
+//    Packet::set_packet_size(9000);
+//    eventlist.setEndtime(timeFromSec(0.201));
+//    Clock c(timeFromSec(5 / 100.), eventlist);
+      int no_of_conns = DEFAULT_NODES, cwnd = 15, no_of_nodes = DEFAULT_NODES;
+    //mem_b queuesize = memFromPkt(DEFAULT_QUEUE_SIZE);
+    int queuesize_in = DEFAULT_QUEUE_SIZE;
     stringstream filename(ios_base::out);
     RouteStrategy route_strategy = NOT_SET;
 
@@ -100,8 +102,12 @@ int main(int argc, char **argv) {
 	} else if (!strcmp(argv[i],"-cwnd")){
 	    cwnd = atoi(argv[i+1]);
 	    i++;
-	} else if (!strcmp(argv[i],"-q")){
-	    queuesize = memFromPkt(atoi(argv[i+1]));
+        } else if (!strcmp(argv[i],"-size")){
+            pkt_size = atoi(argv[i+1]);
+            i++;
+        } 
+          else if (!strcmp(argv[i],"-q")){
+	    queuesize_in = atoi(argv[i+1]);
 	    i++;
 	} else if (!strcmp(argv[i],"-strat")){
 	    if (!strcmp(argv[i+1], "perm")) {
@@ -120,7 +126,15 @@ int main(int argc, char **argv) {
 	i++;
     }
     srand(13);
-      
+          
+    Packet::set_packet_size(pkt_size);
+    eventlist.setEndtime(timeFromSec(0.201));
+    Clock c(timeFromSec(5 / 100.), eventlist);
+//    int no_of_conns = DEFAULT_NODES, cwnd = 15, no_of_nodes = DEFAULT_NODES;
+    mem_b queuesize = memFromPkt(queuesize_in);
+   
+
+
     if (route_strategy == NOT_SET) {
 	fprintf(stderr, "Route Strategy not set.  Use the -strat param.  \nValid values are perm, rand, pull, rg and single\n");
 	exit(1);
@@ -131,7 +145,7 @@ int main(int argc, char **argv) {
     cout << "conns " << no_of_conns << endl;
     cout << "requested nodes " << no_of_nodes << endl;
     cout << "cwnd " << cwnd << endl;
-      
+    cout << "packet size" << pkt_size << endl;  
     // prepare the loggers
 
     cout << "Logging to " << filename.str() << endl;

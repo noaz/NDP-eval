@@ -72,11 +72,13 @@ void print_path(std::ofstream &paths, const Route* rt){
 }
 
 int main(int argc, char **argv) {
-    TcpPacket::set_packet_size(9000);
-    eventlist.setEndtime(timeFromSec(2.01));
-    Clock c(timeFromSec(5 / 100.), eventlist);
+//    TcpPacket::set_packet_size(9000);
+//    eventlist.setEndtime(timeFromSec(2.01));
+ //   Clock c(timeFromSec(5 / 100.), eventlist);
     int no_of_conns = DEFAULT_NODES, no_of_nodes = DEFAULT_NODES, ssthresh = 15;
-    mem_b queuesize = memFromPkt(DEFAULT_QUEUE_SIZE);
+//    mem_b queuesize = memFromPkt(DEFAULT_QUEUE_SIZE);
+    int queuesize_in = DEFAULT_QUEUE_SIZE;
+    int pkt_size=9000;
     stringstream filename(ios_base::out);
     int failed_links = 0;
     int i = 1;
@@ -99,13 +101,17 @@ int main(int argc, char **argv) {
 	    no_of_nodes = atoi(argv[i+1]);
 	    cout << "no_of_nodes "<<no_of_nodes << endl;
 	    i++;
+	} else if (!strcmp(argv[i],"-size")){
+            pkt_size = atoi(argv[i+1]);
+            cout << "pkt_size "<<pkt_size <<endl;
+	    i++;
 	} else if (!strcmp(argv[i],"-ssthresh")){
 	    ssthresh = atoi(argv[i+1]);
 	    cout << "ssthresh "<< ssthresh << endl;
 	    i++;
 	} else if (!strcmp(argv[i],"-q")){
-	    queuesize = memFromPkt(atoi(argv[i+1]));
-	    cout << "queuesize "<<queuesize << endl;
+	    queuesize_in = atoi(argv[i+1]);
+	    cout << "queuesize "<<queuesize_in << endl;
 	    i++;
 	} else if (!strcmp(argv[i],"-fail")){
 	    failed_links = atoi(argv[i+1]);
@@ -122,6 +128,10 @@ int main(int argc, char **argv) {
     cout << "Logging to " << filename.str() << endl;
     //Logfile 
     Logfile logfile(filename.str(), eventlist);
+    TcpPacket::set_packet_size(pkt_size);
+    eventlist.setEndtime(timeFromSec(2.01));
+    mem_b queuesize = memFromPkt(queuesize_in);
+
 
 #if PRINT_PATHS
     filename << ".paths";

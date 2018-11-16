@@ -73,11 +73,9 @@ void print_path(std::ofstream &paths, const Route* rt){
 }
 
 int main(int argc, char **argv) {
-    Packet::set_packet_size(9000);
-    eventlist.setEndtime(timeFromSec(1.01));
-    Clock c(timeFromSec(5 / 100.), eventlist);
+    int pkt_size = 9000;
     int no_of_conns = DEFAULT_NODES, cwnd = 15, no_of_nodes = DEFAULT_NODES;
-    mem_b queuesize = memFromPkt(DEFAULT_QUEUE_SIZE);
+    int queuesize_in = DEFAULT_QUEUE_SIZE;
     stringstream filename(ios_base::out);
 
     int i = 1;
@@ -91,6 +89,9 @@ int main(int argc, char **argv) {
 	} else if (!strcmp(argv[i],"-sub")){
 	    subflow_count = atoi(argv[i+1]);
 	    i++;
+	} else if (!strcmp(argv[i],"-size")){
+            pkt_size = atoi(argv[i+1]);
+            i++;
 	} else if (!strcmp(argv[i],"-conns")){
 	    no_of_conns = atoi(argv[i+1]);
 	    i++;
@@ -101,14 +102,19 @@ int main(int argc, char **argv) {
 	    cwnd = atoi(argv[i+1]);
 	    i++;
 	} else if (!strcmp(argv[i],"-q")){
-	    queuesize = memFromPkt(atoi(argv[i+1]));
+	    queuesize_in = atoi(argv[i+1]);
 	    i++;
 	} else {
 	    exit_error(argv[0]);
 	}
 	i++;
     }
-    
+   
+    Packet::set_packet_size(pkt_size);
+    eventlist.setEndtime(timeFromSec(1.01));
+    Clock c(timeFromSec(5 / 100.), eventlist);
+    mem_b queuesize = memFromPkt(queuesize_in);
+ 
     struct timeval start;
     gettimeofday(&start, NULL);
 
@@ -119,7 +125,7 @@ int main(int argc, char **argv) {
     cout << "conns " << no_of_conns << endl;
     cout << "requested nodes " << no_of_nodes << endl;
     cout << "cwnd " << cwnd << endl;
-      
+    cout << "packet size "<<pkt_size << endl;
     // prepare the loggers
 
     cout << "Logging to " << filename.str() << endl;
